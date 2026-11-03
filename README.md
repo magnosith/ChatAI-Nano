@@ -147,12 +147,6 @@ ChatAI-Nano/
 - **Janela de contexto:** a sessão tem um limite de tokens. Quando a barra encher, clique em **Nova conversa**.
 - **Só Chrome desktop:** outros navegadores ainda não expõem o `LanguageModel`.
 
-## Créditos
-
-- Projeto inspirado na aula do professor **Erick Wendel** na pós-graduação **Engenharia de Software com IA Aplicada (UNIPDS)**, que apresentou a Prompt API com um exemplo próprio. Interface, logo e funcionalidades extras deste repositório são autorais.
-- [Prompt API / Built-in AI](https://developer.chrome.com/docs/ai/built-in) e Gemini Nano, do Google Chrome.
-- [markdown-js](https://github.com/evilstreak/markdown-js) para renderizar as respostas.
-
 ---
 
 <div align="center">
