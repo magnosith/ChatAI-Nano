@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat AI Nano</title>
+    <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app">
+        <aside class="panel">
+            <header class="brand">
+                <div class="brand-logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+                        <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1>Chat AI Nano</h1>
+                    <p>IA rodando no seu navegador</p>
+                </div>
+            </header>
+
+            <section class="card status-card" id="status" data-state="checking">
+                <div class="status-row">
+                    <span class="status-dot"></span>
+                    <span id="status-text">Verificando o modelo…</span>
+                </div>
+                <div class="progress" id="progress" hidden>
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <p class="hint">Gemini Nano · processamento local, sem servidor</p>
+            </section>
+
+            <section class="card">
+                <h2>Parâmetros</h2>
+
+                <div class="field">
+                    <div class="field-head">
+                        <label for="temperature">Temperature</label>
+                        <span class="chip" id="temperature-value">—</span>
+                    </div>
+                    <input type="range" id="temperature" min="0" max="2" step="0.1" value="1">
+                    <p class="hint">Baixa = respostas focadas · alta = mais criativas</p>
+                </div>
+
+                <div class="field">
+                    <div class="field-head">
+                        <label for="top-k">Top K</label>
+                    </div>
+                    <div class="stepper">
+                        <button type="button" data-step="-1" aria-label="Diminuir Top K">−</button>
+                        <input type="number" id="top-k" min="1" max="128" value="3" inputmode="numeric">
+                        <button type="button" data-step="1" aria-label="Aumentar Top K">+</button>
+                    </div>
+                    <p class="hint">Quantas palavras mais prováveis o modelo considera a cada passo</p>
+                </div>
+
+                <p class="note" id="sampling-note" hidden>
+                    Temperature e top K só podem ser ajustados quando o chat roda como extensão do Chrome. Aqui a
+                    página usa os valores padrão do modelo.
+                </p>
+            </section>
+
+            <section class="card">
+                <h2><label for="system-prompt">Instruções do sistema</label></h2>
+                <textarea id="system-prompt" rows="4">Você é um assistente de IA que responde de forma clara e objetiva. Responda em português.</textarea>
+            </section>
+
+            <section class="card">
+                <div class="field-head">
+                    <h2>Contexto da sessão</h2>
+                    <button type="button" class="ghost-button" id="reset">Nova conversa</button>
+                </div>
+                <div class="progress small">
+                    <div class="progress-bar" id="usage-bar"></div>
+                </div>
+                <p class="hint" id="usage">Nenhuma sessão aberta</p>
+            </section>
+
+            <footer class="credits">@magnodeveloper · Engenharia de Software Mobile · IA</footer>
+        </aside>
+
+        <main class="chat">
+            <header class="chat-header">
+                <h2>Conversa</h2>
+                <span class="badge">on-device</span>
+            </header>
+
+            <div class="messages" id="messages" aria-live="polite">
+                <div class="empty" id="empty">
+                    <div class="empty-orb" aria-hidden="true"></div>
+                    <h3>Pergunte qualquer coisa</h3>
+                    <p>As respostas são geradas pelo modelo instalado no Chrome, mesmo offline.</p>
+                    <div class="suggestions">
+                        <button type="button" class="suggestion">Quem inventou o JavaScript?</button>
+                        <button type="button" class="suggestion">Complete a frase: "o céu é"</button>
+                        <button type="button" class="suggestion">Explique temperature e top K com um exemplo</button>
+                    </div>
+                </div>
+            </div>
+
+            <form class="composer" id="composer">
+                <div class="attachments" id="attachments" hidden></div>
+                <textarea id="question" rows="1" placeholder="Digite sua pergunta…" aria-label="Pergunta"></textarea>
+                <div class="composer-actions">
+                    <input type="file" id="file" accept="image/*,audio/*" hidden>
+                    <button type="button" class="icon-button" id="attach" title="Anexar imagem ou áudio (em inglês)" aria-label="Anexar arquivo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5l-8.6 8.6a5.5 5.5 0 01-7.8-7.8l8.6-8.6a3.7 3.7 0 015.2 5.2l-8.6 8.6a1.8 1.8 0 01-2.6-2.6l7.9-7.9" />
+                        </svg>
+                    </button>
+                    <span class="hint keys">Enter envia · Shift+Enter quebra linha</span>
+                    <button type="button" class="stop-button" id="stop" hidden>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+                        Parar
+                    </button>
+                    <button type="submit" class="send-button" id="send">
+                        Enviar
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 6l6 6-6 6" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <!-- markdown@0.5.0 baixado de https://www.jsdelivr.com/package/npm/markdown (cópia local para funcionar offline) -->
+    <script src="lib/markdown.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
